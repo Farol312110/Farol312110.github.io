@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<title>公寓异常管理集团 - 招聘</title>
+
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background-color: #f4f6f8;
+  color: #222;
+  transition: 0.5s;
+}
+
+header {
+  background: #0d1b2a;
+  color: white;
+  padding: 20px;
+  text-align: center;
+}
+
+.container {
+  padding: 40px;
+  max-width: 800px;
+  margin: auto;
+}
+
+.job-card {
+  border: 1px solid #ddd;
+  padding: 20px;
+  margin-top: 20px;
+  background: white;
+}
+
+button {
+  padding: 10px 20px;
+  background: #1b263b;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #415a77;
+}
+
+.footer {
+  margin-top: 80px;
+  text-align: center;
+  font-size: 12px;
+  color: #666;
+}
+
+/* 污染视觉 */
+.corrupted {
+  background-color: #0a0a0a;
+  color: #ccc;
+}
+
+.glitch {
+  animation: glitch 0.3s infinite;
+}
+
+@keyframes glitch {
+  0% { transform: translate(0); }
+  20% { transform: translate(-1px, 1px); }
+  40% { transform: translate(1px, -1px); }
+  60% { transform: translate(-1px, 0); }
+  80% { transform: translate(1px, 0); }
+  100% { transform: translate(0); }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1 id="companyTitle">公寓异常管理集团</h1>
+  <p id="slogan">致力于维护高质量居住秩序</p>
+</header>
+
+<div class="container">
+  <h2>招聘岗位：夜间管理员</h2>
+
+  <div class="job-card">
+    <p><strong>工作时间：</strong>21:00 - 06:00</p>
+    <p><strong>岗位职责：</strong>遵守并执行夜间管理规则</p>
+    <p><strong>要求：</strong>逻辑清晰，服从安排</p>
+    <p id="extraLine"></p>
+    <button onclick="enterSystem()">申请该职位</button>
+  </div>
+</div>
+
+<div class="footer">
+  © 2026 公寓异常管理集团 | Internal Recruitment Portal
+</div>
+
+<script>
+
+// 初始化存档
+let data = JSON.parse(localStorage.getItem("apartmentData")) || {
+  pollution: 0,
+  trust: 0,
+  night: 1,
+  loop: 0
+};
+
+function save() {
+  localStorage.setItem("apartmentData", JSON.stringify(data));
+}
+
+// 页面异常变化
+if (data.loop >= 1) {
+  document.getElementById("extraLine").innerText =
+    "我们重视长期稳定的员工。";
+}
+
+if (data.loop >= 2) {
+  document.getElementById("slogan").innerText =
+    "维护秩序。遵守规则。";
+}
+
+if (data.loop >= 3) {
+  document.body.classList.add("corrupted");
+  document.getElementById("companyTitle").classList.add("glitch");
+}
+
+if (data.loop >= 5) {
+  document.title = "你还在值班";
+}
+
+// 点击进入系统
+function enterSystem() {
+  data.loop += 1;
+  save();
+
+  document.body.innerHTML = `
+  <div style="padding:40px;text-align:center;">
+    <h2>欢迎加入夜间管理系统</h2>
+    <p>正在加载规则...</p>
+    <p>当前周目：${data.loop}</p>
+    <button onclick="startNight()">开始第一夜</button>
+  </div>
+  `;
+}
+
+function startNight() {
+  document.body.innerHTML = `
+  <div style="padding:40px;">
+    <h2>规则</h2>
+    <p>1. 21:00后禁止进入4楼</p>
+    <p>2. 若听见奔跑声，请不要开门</p>
+    <p>3. 404不存在</p>
+    <p>4. 不要相信第二份规则</p>
+    <br>
+    <button onclick="increasePollution()">进入走廊</button>
+  </div>
+  `;
+}
+
+function increasePollution() {
+  data.pollution += 1;
+  save();
+
+  document.body.innerHTML = `
+  <div style="padding:40px;">
+    <h2>走廊</h2>
+    <p>灯全部亮起。</p>
+    <p>远处传来奔跑声。</p>
+    <p>污染值：${data.pollution}</p>
+    <button onclick="location.reload()">返回首页</button>
+  </div>
+  `;
+}
+
+</script>
+
+</body>
+</html>
