@@ -119,103 +119,77 @@ input {
   © 2026 公寓异常管理集团 | Internal Recruitment Portal
 </div>
 
-<script>
+<script type="module">
 
-// 初始化数据
-let data = JSON.parse(localStorage.getItem("apartmentData")) || {
-  pollution: 0,
-  trust: 0,
-  night: 1,
-  loop: 0,
-  name: ""
+// ===== Firebase 引入 =====
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+// ===== 你的 firebaseConfig（替换成你自己的） =====
+const firebaseConfig = {
+  apiKey: "填你自己的",
+  authDomain: "填你自己的",
+  projectId: "填你自己的",
+  storageBucket: "填你自己的",
+  messagingSenderId: "填你自己的",
+  appId: "填你自己的"
 };
 
-function save() {
-  localStorage.setItem("apartmentData", JSON.stringify(data));
+// 初始化
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// ===== 工具函数 =====
+function generateCode() {
+  return Math.floor(1000 + Math.random() * 9000).toString();
 }
 
-// 首页异常变化
-if (data.loop >= 2) {
-  document.getElementById("slogan").innerText =
-    "维护秩序。遵守规则。";
-}
-
-if (data.loop >= 3) {
-  document.body.classList.add("corrupted");
-}
-
-if (data.loop >= 4) {
-  document.getElementById("companyTitle").classList.add("glitch");
-}
-
-if (data.loop >= 5) {
-  document.title = "你还在值班";
-}
-
-// 显示登录页
-function showLogin() {
-  document.getElementById("mainPage").classList.add("hidden");
-  document.getElementById("loginPage").classList.remove("hidden");
-
-  if (data.loop >= 3 && data.name !== "") {
-    document.getElementById("playerName").value = data.name;
-  }
-}
-
-// 登录逻辑
-function login() {
-  let nameInput = document.getElementById("playerName").value;
-
-  if (nameInput.trim() === "") {
-    alert("请输入姓名。");
+// ===== 注册 =====
+window.register = async function() {
+  const name = document.getElementById("playerName").value.trim();
+  if (!name) {
+    alert("请输入姓名");
     return;
   }
 
-  data.name = nameInput;
-  data.loop += 1;
-  save();
+  const code = generateCode();
+  const id = name + "_" + code;
 
-  startSystem();
-}
+  await setDoc(doc(db, "players", id), {
+    name: name,
+    code: code,
+    pollution: 0,
+    trust: 0,
+    night: 1,
+    loop: 1,
+    lastLogin: Date.now()
+  });
 
-// 进入系统
-function startSystem() {
+  alert("注册成功！\n员工编码：" + code + "\n请记住它。");
+};
 
-  document.body.innerHTML = `
-  <div style="padding:40px;">
-    <h2>欢迎，${data.name}</h2>
-    <p>夜间管理系统已激活。</p>
-    <p>当前周目：${data.loop}</p>
-    <p>污染值：${data.pollution}</p>
-    <br>
-    <p>规则：</p>
-    <p>1. 21:00后禁止进入4楼</p>
-    <p>2. 若听见奔跑声，请不要开门</p>
-    <p>3. 404不存在</p>
-    <p>4. 不要相信第二份规则</p>
-    <br>
-    <button onclick="enterHallway()">进入走廊</button>
-  </div>
-  `;
-}
+// ===== 登录 =====
+window.login = async function() {
+  const name = document.getElementById("playerName").value.trim();
+  const code = document.getElementById("playerCode").value.trim();
 
-// 简易走廊事件
-function enterHallway() {
-  data.pollution += 1;
-  save();
+  if (!name || !code) {
+    alert("请输入姓名和员工编码");
+    return;
+  }
 
-  document.body.innerHTML = `
-  <div style="padding:40px;">
-    <h2>走廊</h2>
-    <p>灯全部亮起。</p>
-    <p>远处传来奔跑声。</p>
-    <p>${data.name}，你确定要继续吗？</p>
-    <p>污染值：${data.pollution}</p>
-    <br>
-    <button onclick="location.reload()">返回首页</button>
-  </div>
-  `;
-}
+  const id = name + "_" + code;
+  const docRef = doc(db, "players", id);
+  const docSnap = await getDoc(docRef);
+
+  if (docSnap.exists()) {
+    const data = docSnap.data();
+    alert("欢迎回来，" + data.name);
+    console.log("读取到数据：", data);
+  } else {
+    alert("员工不存在。");
+  }
+};
 
 </script>
 
