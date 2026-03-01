@@ -39,10 +39,17 @@ button {
   color: white;
   border: none;
   cursor: pointer;
+  margin-top: 10px;
 }
 
 button:hover {
   background: #415a77;
+}
+
+input {
+  padding: 8px;
+  margin-top: 10px;
+  width: 200px;
 }
 
 .footer {
@@ -52,7 +59,11 @@ button:hover {
   color: #666;
 }
 
-/* 污染视觉 */
+.hidden {
+  display: none;
+}
+
+/* 异常效果 */
 .corrupted {
   background-color: #0a0a0a;
   color: #ccc;
@@ -64,10 +75,9 @@ button:hover {
 
 @keyframes glitch {
   0% { transform: translate(0); }
-  20% { transform: translate(-1px, 1px); }
-  40% { transform: translate(1px, -1px); }
-  60% { transform: translate(-1px, 0); }
-  80% { transform: translate(1px, 0); }
+  25% { transform: translate(-1px, 1px); }
+  50% { transform: translate(1px, -1px); }
+  75% { transform: translate(-1px, 0); }
   100% { transform: translate(0); }
 }
 </style>
@@ -80,16 +90,23 @@ button:hover {
   <p id="slogan">致力于维护高质量居住秩序</p>
 </header>
 
-<div class="container">
+<div class="container" id="mainPage">
   <h2>招聘岗位：夜间管理员</h2>
 
   <div class="job-card">
     <p><strong>工作时间：</strong>21:00 - 06:00</p>
     <p><strong>岗位职责：</strong>遵守并执行夜间管理规则</p>
     <p><strong>要求：</strong>逻辑清晰，服从安排</p>
-    <p id="extraLine"></p>
-    <button onclick="enterSystem()">申请该职位</button>
+    <button onclick="showLogin()">员工登录</button>
   </div>
+</div>
+
+<div class="container hidden" id="loginPage">
+  <h2>内部员工登录</h2>
+  <p>请输入姓名以继续：</p>
+  <input type="text" id="playerName" placeholder="姓名">
+  <br>
+  <button onclick="login()">登录系统</button>
 </div>
 
 <div class="footer">
@@ -98,24 +115,20 @@ button:hover {
 
 <script>
 
-// 初始化存档
+// 初始化数据
 let data = JSON.parse(localStorage.getItem("apartmentData")) || {
   pollution: 0,
   trust: 0,
   night: 1,
-  loop: 0
+  loop: 0,
+  name: ""
 };
 
 function save() {
   localStorage.setItem("apartmentData", JSON.stringify(data));
 }
 
-// 页面异常变化
-if (data.loop >= 1) {
-  document.getElementById("extraLine").innerText =
-    "我们重视长期稳定的员工。";
-}
-
+// 首页异常变化
 if (data.loop >= 2) {
   document.getElementById("slogan").innerText =
     "维护秩序。遵守规则。";
@@ -123,6 +136,9 @@ if (data.loop >= 2) {
 
 if (data.loop >= 3) {
   document.body.classList.add("corrupted");
+}
+
+if (data.loop >= 4) {
   document.getElementById("companyTitle").classList.add("glitch");
 }
 
@@ -130,36 +146,55 @@ if (data.loop >= 5) {
   document.title = "你还在值班";
 }
 
-// 点击进入系统
-function enterSystem() {
+// 显示登录页
+function showLogin() {
+  document.getElementById("mainPage").classList.add("hidden");
+  document.getElementById("loginPage").classList.remove("hidden");
+
+  if (data.loop >= 3 && data.name !== "") {
+    document.getElementById("playerName").value = data.name;
+  }
+}
+
+// 登录逻辑
+function login() {
+  let nameInput = document.getElementById("playerName").value;
+
+  if (nameInput.trim() === "") {
+    alert("请输入姓名。");
+    return;
+  }
+
+  data.name = nameInput;
   data.loop += 1;
   save();
 
-  document.body.innerHTML = `
-  <div style="padding:40px;text-align:center;">
-    <h2>欢迎加入夜间管理系统</h2>
-    <p>正在加载规则...</p>
-    <p>当前周目：${data.loop}</p>
-    <button onclick="startNight()">开始第一夜</button>
-  </div>
-  `;
+  startSystem();
 }
 
-function startNight() {
+// 进入系统
+function startSystem() {
+
   document.body.innerHTML = `
   <div style="padding:40px;">
-    <h2>规则</h2>
+    <h2>欢迎，${data.name}</h2>
+    <p>夜间管理系统已激活。</p>
+    <p>当前周目：${data.loop}</p>
+    <p>污染值：${data.pollution}</p>
+    <br>
+    <p>规则：</p>
     <p>1. 21:00后禁止进入4楼</p>
     <p>2. 若听见奔跑声，请不要开门</p>
     <p>3. 404不存在</p>
     <p>4. 不要相信第二份规则</p>
     <br>
-    <button onclick="increasePollution()">进入走廊</button>
+    <button onclick="enterHallway()">进入走廊</button>
   </div>
   `;
 }
 
-function increasePollution() {
+// 简易走廊事件
+function enterHallway() {
   data.pollution += 1;
   save();
 
@@ -168,7 +203,9 @@ function increasePollution() {
     <h2>走廊</h2>
     <p>灯全部亮起。</p>
     <p>远处传来奔跑声。</p>
+    <p>${data.name}，你确定要继续吗？</p>
     <p>污染值：${data.pollution}</p>
+    <br>
     <button onclick="location.reload()">返回首页</button>
   </div>
   `;
