@@ -102,11 +102,17 @@ input {
 </div>
 
 <div class="container hidden" id="loginPage">
-  <h2>内部员工登录</h2>
-  <p>请输入姓名以继续：</p>
-  <input type="text" id="playerName" placeholder="姓名">
+  <h2>内部员工系统</h2>
+  <p>请输入姓名与员工编码</p>
+
+  <input type="text" id="playerName" placeholder="员工姓名">
   <br>
-  <button onclick="login()">登录系统</button>
+
+  <input type="text" id="playerCode" placeholder="员工编码（注册后获得）">
+  <br>
+
+  <button onclick="register()">注册新员工</button>
+  <button onclick="login()">登录已有账号</button>
 </div>
 
 <div class="footer">
