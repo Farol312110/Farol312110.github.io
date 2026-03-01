@@ -62,11 +62,6 @@ input {
 .hidden {
   display: none;
 }
-
-.corrupted {
-  background-color: #0a0a0a;
-  color: #ccc;
-}
 </style>
 </head>
 
@@ -107,40 +102,38 @@ input {
   © 2026 公寓异常管理集团 | Internal Recruitment Portal
 </div>
 
-<script type="module">
+<!-- Supabase CDN -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, doc, setDoc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+<script>
 
-const firebaseConfig = {
-  apiKey: "AIzaSyA5szvUkWlixf507iZeGLEs7Poq1rueNDw",
-  authDomain: "apartment-system-c16be.firebaseapp.com",
-  projectId: "apartment-system-c16be",
-  storageBucket: "apartment-system-c16be.firebasestorage.app",
-  messagingSenderId: "745250696109",
-  appId: "1:745250696109:web:02e447f0e0e1bfb82ecf24"
-};
+// ===== 在这里填入你的 Supabase 信息 =====
+const supabaseUrl = "https://jfqgdcwwjjcopckvopug.supabase.co";
+const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpmcWdkY3d3ampjb3Bja3ZvcHVnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzNTQzMDIsImV4cCI6MjA4NzkzMDMwMn0.95VTLUlRl_cPFWr6L6k8Gg3Qi4ZJhpHLXk0KqwUaelk";
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+const client = supabase.createClient(supabaseUrl, supabaseKey);
 
+// ===== 页面切换 =====
+function showLogin() {
+  document.getElementById("mainPage").classList.add("hidden");
+  document.getElementById("loginPage").classList.remove("hidden");
+}
+
+function goHome() {
+  document.getElementById("loginPage").classList.add("hidden");
+  document.getElementById("mainPage").classList.remove("hidden");
+}
+
+// ===== 工具函数 =====
 function generateCode() {
   return Math.floor(1000 + Math.random() * 9000).toString();
 }
 
-window.showLogin = function() {
-  document.getElementById("mainPage").classList.add("hidden");
-  document.getElementById("loginPage").classList.remove("hidden");
-};
-
-window.goHome = function() {
-  document.getElementById("loginPage").classList.add("hidden");
-  document.getElementById("mainPage").classList.remove("hidden");
-};
-
-window.register = async function() {
+// ===== 注册 =====
+async function register() {
 
   const name = document.getElementById("playerName").value.trim();
+
   if (!name) {
     alert("请输入姓名");
     return;
@@ -149,20 +142,28 @@ window.register = async function() {
   const code = generateCode();
   const id = name + "_" + code;
 
-  await setDoc(doc(db, "players", id), {
-    name: name,
-    code: code,
-    pollution: 0,
-    trust: 0,
-    night: 1,
-    loop: 1,
-    lastLogin: Date.now()
-  });
+  const { error } = await client
+    .from("players")
+    .insert([{
+      id: id,
+      name: name,
+      code: code,
+      pollution: 0,
+      trust: 0,
+      night: 1,
+      loop: 1,
+      last_login: Date.now()
+    }]);
 
-  alert("注册成功！\n员工编码：" + code + "\n请务必记住。");
-};
+  if (error) {
+    alert("注册失败：" + error.message);
+  } else {
+    alert("注册成功！\n员工编码：" + code + "\n请务必记住。");
+  }
+}
 
-window.login = async function() {
+// ===== 登录 =====
+async function login() {
 
   const name = document.getElementById("playerName").value.trim();
   const code = document.getElementById("playerCode").value.trim();
@@ -173,57 +174,65 @@ window.login = async function() {
   }
 
   const id = name + "_" + code;
-  const ref = doc(db, "players", id);
-  const snap = await getDoc(ref);
 
-  if (!snap.exists()) {
-    alert("员工不存在。");
+  const { data, error } = await client
+    .from("players")
+    .select("*")
+    .eq("id", id)
+    .single();
+
+  if (error || !data) {
+    alert("员工不存在");
     return;
   }
 
-  const data = snap.data();
+  // 更新登录信息
+  await client
+    .from("players")
+    .update({
+      loop: data.loop + 1,
+      last_login: Date.now()
+    })
+    .eq("id", id);
 
-  await updateDoc(ref, {
-    loop: data.loop + 1,
-    lastLogin: Date.now()
-  });
+  startSystem(data, id);
+}
 
-  startSystem(data.name, data.pollution, id);
-};
-
-function startSystem(name, pollution, id) {
+// ===== 游戏入口 =====
+function startSystem(data, id) {
 
   document.body.innerHTML = `
-  <div style="padding:40px;">
-    <h2>欢迎回来，${name}</h2>
-    <p>夜间管理系统已激活。</p>
-    <p>当前污染值：${pollution}</p>
-    <br>
-    <button onclick="enterHallway('${id}', ${pollution})">进入走廊</button>
-  </div>
+    <div style="padding:40px;">
+      <h2>欢迎回来，${data.name}</h2>
+      <p>当前污染值：${data.pollution}</p>
+      <p>当前周目：${data.loop}</p>
+      <br>
+      <button onclick="enterHallway('${id}', ${data.pollution})">进入走廊</button>
+    </div>
   `;
 }
 
-window.enterHallway = async function(id, pollution) {
+// ===== 简易事件 =====
+async function enterHallway(id, pollution) {
 
   pollution += 1;
 
-  const ref = doc(db, "players", id);
-  await updateDoc(ref, {
-    pollution: pollution
-  });
+  await client
+    .from("players")
+    .update({ pollution: pollution })
+    .eq("id", id);
 
   document.body.innerHTML = `
-  <div style="padding:40px;">
-    <h2>走廊</h2>
-    <p>灯全部亮起。</p>
-    <p>远处传来奔跑声。</p>
-    <p>当前污染值：${pollution}</p>
-    <br>
-    <button onclick="location.reload()">返回首页</button>
-  </div>
+    <div style="padding:40px;">
+      <h2>走廊</h2>
+      <p>灯全部亮起。</p>
+      <p>远处传来奔跑声。</p>
+      <p>当前污染值：${pollution}</p>
+      <br>
+      <button onclick="location.reload()">返回首页</button>
+    </div>
   `;
-};
+}
 
 </script>
 
