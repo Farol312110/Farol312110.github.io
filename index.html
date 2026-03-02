@@ -86,6 +86,31 @@ input {
   display: flex; flex-direction: column; justify-content: center; align-items: center;
   text-align: center; z-index: 999; padding: 20px; box-sizing: border-box;
 }
+
+/* 欢迎动画 */
+.welcome-overlay {
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: black;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  color: #ff0;
+  font-size: 48px;
+  font-family: 'Courier New', monospace;
+  text-shadow: 2px 2px 0 red, -2px -2px 0 blue;
+  animation: glitch 0.3s infinite;
+}
+
+@keyframes glitch {
+  0% { transform: skew(0deg); }
+  20% { transform: skew(10deg); }
+  40% { transform: skew(-10deg); }
+  60% { transform: skew(5deg); }
+  80% { transform: skew(-5deg); }
+  100% { transform: skew(0deg); }
+}
 </style>
 </head>
 
@@ -110,7 +135,7 @@ input {
   <h2>>_ 内部员工鉴权系统</h2>
   <input type="text" id="playerName" autocomplete="off" placeholder="输入真实姓名 (切勿使用代号)">
   <input type="password" id="playerPassword" autocomplete="off" placeholder="输入密码 (4-6位数字)">
-  <!-- 密码输入框，type=password 隐藏字符，但为了视觉一致，你也可以保留 text 并加说明 -->
+  <input type="text" id="playerCode" autocomplete="off" placeholder="员工编号 (4位数字)">
   
   <button onclick="register()">[ 登记灵魂 ]</button>
   <button onclick="login()">[ 唤醒档案 ]</button>
@@ -148,7 +173,7 @@ function generateCode() { return Math.floor(1000 + Math.random() * 9000).toStrin
 function checkDeveloperEasterEgg(name) {
   const lower = name.toLowerCase();
   if (lower === "farol" || lower === "farol312110") {
-    alert("【系统拦截】检测到开发者 ID 镜像……\n\n警告：想屁吃呢，滚去干活！");
+    alert("【系统拦截】检测到开发者 ID 镜像……\n\n警告：这就想要开发者了？想屁吃呢，滚去干活！");
     return true;
   }
   return false;
@@ -167,7 +192,6 @@ async function register() {
   if (!name) return alert("姓名不可为空。");
   if (checkDeveloperEasterEgg(name)) return;
 
-  // 密码验证
   if (!password) return alert("密码不可为空。");
   if (!isValidPassword(password)) {
     return alert("密码必须为 4-6 位数字。");
@@ -177,25 +201,22 @@ async function register() {
   const { data: existing, error: queryError } = await client
     .from("players")
     .select("name")
-    .ilike("name", name);  // ilike 忽略大小写
+    .ilike("name", name);
 
   if (queryError) {
     return alert("系统错误，无法验证身份：" + queryError.message);
   }
   if (existing && existing.length > 0) {
-    // 已有同名员工，提示并返回
     return alert("⚠️ 此员工已存在！\n别想滥竽充数！");
   }
 
-  // 生成编码
   const code = generateCode();
   const id = name + "_" + code;
 
-  // 插入新记录（包含 password 字段）
   const { error: insertError } = await client.from("players").insert([{
     id: id,
     name: name,
-    password: password,   // 注意：明文存储，仅供小型游戏使用，正式场景需哈希
+    password: password,
     code: code,
     pollution: 0,
     loop: 1,
@@ -205,46 +226,89 @@ async function register() {
   if (insertError) {
     alert("档案录入失败，实体被拒绝：" + insertError.message);
   } else {
-    alert("录入成功。您的唯一编码是：[" + code + "]\n请将其刻在脑子里。");
-    // 可选：自动填充密码？不填，让用户手动登录
+    alert(`录入成功。您的唯一编码是：[${code}]\n请将其刻在脑子里。\n登录时需输入此编号和密码。`);
     document.getElementById("playerPassword").value = ""; // 清空密码
+    document.getElementById("playerCode").value = "";     // 清空编号（让用户手动输入）
   }
 }
 
-// ===== 登录 =====
-async function login() {
-  const name = document.getElementById("playerName").value.trim();
-  const password = document.getElementById("playerPassword").value.trim();
+// ===== 欢迎动画 =====
+function showWelcomeBack(name) {
+  return new Promise(resolve => {
+    const overlay = document.createElement('div');
+    overlay.className = 'welcome-overlay';
+    overlay.innerText = `欢迎回来，${name}`;
+    document.body.appendChild(overlay);
+    setTimeout(() => {
+      overlay.remove();
+      resolve();
+    }, 2000); // 显示2秒
+  });
+}
 
-  if (!name || !password) return alert("姓名和密码不可为空。");
-  if (checkDeveloperEasterEgg(name)) return;  // 拦截开发者名字登录
+// ===== 核心登录逻辑（不包含UI交互） =====
+async function performLogin(name, password, code) {
+  if (!name || !password || !code) {
+    alert("姓名、密码和员工编号不可为空。");
+    return;
+  }
 
-  // 查询匹配 name 且 password 正确的记录（大小写不敏感）
   const { data, error } = await client
     .from("players")
     .select("*")
     .ilike("name", name)
-    .eq("password", password);   // 明文对比，简单游戏适用
+    .eq("password", password)
+    .eq("code", code);
 
   if (error || !data || data.length === 0) {
-    return alert("查无此人。你真的存在过吗？");
+    alert("抱歉，查无此人。或者……你真的存在过吗？：）");
+    return;
   }
 
-  // 如果同一个姓名有多个记录（理论上不应发生，但以防万一，取第一个）
   const user = data[0];
+  await client.from("players").update({ loop: user.loop + 1, last_login: Date.now() }).eq("id", user.id);
 
-  // 更新 loop 和 last_login
-  await client
-    .from("players")
-    .update({ loop: user.loop + 1, last_login: Date.now() })
-    .eq("id", user.id);
-
-  // 隐藏登录页，进入游戏
   document.getElementById("loginPage").classList.add("hidden");
   document.querySelector("header").classList.add("hidden");
   document.querySelector(".footer").classList.add("hidden");
 
   startSystem(user, user.id);
+}
+
+// ===== 登录（包含特殊名字处理） =====
+async function login() {
+  const name = document.getElementById("playerName").value.trim();
+  const password = document.getElementById("playerPassword").value.trim();
+  const code = document.getElementById("playerCode").value.trim();
+
+  if (!name || !password || !code) return alert("姓名、密码和员工编号不可为空。");
+  if (checkDeveloperEasterEgg(name)) return;
+
+  const lowerName = name.toLowerCase();
+  if (lowerName === "firebase" || lowerName === "supabase") {
+    const presetPassword = lowerName === "firebase" ? "6666" : "9999";
+    const presetCode = lowerName === "firebase" ? "0001" : "0002";
+
+    // 如果已经输入了正确的预设值，直接登录（避免重复询问）
+    if (password === presetPassword && code === presetCode) {
+      await performLogin(name, password, code);
+    } else {
+      const confirmMsg = `你确定要选择“${name}”这个名字吗？这将使用预设的员工编号和密码进入特殊剧情。`;
+      if (confirm(confirmMsg)) {
+        // 自动填充
+        document.getElementById("playerPassword").value = presetPassword;
+        document.getElementById("playerCode").value = presetCode;
+        // 显示扭曲欢迎动画
+        await showWelcomeBack(name);
+        // 执行登录
+        await performLogin(name, presetPassword, presetCode);
+      }
+      // 用户取消，什么都不做
+    }
+  } else {
+    // 普通登录
+    await performLogin(name, password, code);
+  }
 }
 
 // ===== 游戏主系统 (完全保留原有逻辑) =====
@@ -292,19 +356,17 @@ function fixElevator(id) {
       </p>
     </div>
   `;
-  // 物理锁死页面
   document.body.style.overflow = 'hidden'; 
 }
 
 // ===== 剧情分支：走廊巡视 (Supabase 路线 & 正常路线) =====
 async function enterHallway(id, pollution, isHaunted) {
-  let jumpValue = isHaunted ? 20 : 1; // 被凝视时污染值暴增
+  let jumpValue = isHaunted ? 20 : 1;
   let newPollution = pollution + jumpValue;
 
   await client.from("players").update({ pollution: newPollution }).eq("id", id);
 
   if (isHaunted && newPollution >= 50) {
-    // 触发追逐战
     document.getElementById("gameUI").innerHTML = `
       <div class="container" style="border-color: red; animation: shake 0.5s infinite;">
         <h2 style="color: red;">⚠️ 紧急脱离协议 ⚠️</h2>
@@ -318,7 +380,6 @@ async function enterHallway(id, pollution, isHaunted) {
     return;
   }
 
-  // 正常巡视反馈
   document.getElementById("gameUI").innerHTML = `
     <div class="container">
       <h2>幽暗的走廊</h2>
@@ -337,8 +398,8 @@ function chaseResult(result) {
       <div class="ending-screen" style="background-color: #8b0000; color: #fff;">
         <h1>【BAD ENDING: 冒名顶替】</h1>
         <p style="max-width: 600px;">
-          影子抓住了你。它夺走了你的 JWT 令牌，并锁死了你的管理员账号。<br><br>
-          它戴上了你的工牌，现在，它才是合法的 Supabase 进程。而你，成了一个被彻底遗忘的 404 错误。
+          影子抓住了你，你终于看清了对方，它是上一届管理员“Firebase”它夺走了你的 JWT 令牌，并锁死了你的管理员账号。<br><br>
+          它戴上了你的工牌，现在，它才是合法的 Supabase 进程。而你，只是一个被彻底遗忘的 404 错误……：)
         </p>
       </div>
     `;
@@ -348,8 +409,8 @@ function chaseResult(result) {
         <h1>【TRUE ENDING: 架构主宰】</h1>
         <p style="max-width: 600px;">
           你咬破指尖，在控制台上敲下了一记完美的 <code>DROP TABLE firebase_ghosts;</code><br><br>
-          影子在一阵红色的报错代码中灰飞烟灭。服务器恢复了宁静的蓝色指示灯。<br><br>
-          系统提示：[ADMIN PRIVILEGES GRANTED]。恭喜你，夜间管理员，你现在是这片数字公寓的造物主。
+          那个影子在一阵红色的报错代码中灰飞烟灭……服务器恢复了宁静的蓝色指示灯。<br><br>
+          系统提示：[ADMIN PRIVILEGES GRANTED]。欢迎回来，夜间的管理员，Supabase。
         </p>
       </div>
     `;
