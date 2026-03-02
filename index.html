@@ -2,65 +2,89 @@
 <html lang="zh">
 <head>
 <meta charset="UTF-8">
-<title>公寓异常管理集团 - 招聘</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>公寓异常管理集团 - 内部终端</title>
 
 <style>
+/* ====== 诡异暗黑风 UI ====== */
 body {
   margin: 0;
-  font-family: Arial, sans-serif;
-  background-color: #f4f6f8;
-  color: #222;
-  transition: 0.5s;
+  font-family: 'Courier New', Courier, monospace; /* 终端字体增强代入感 */
+  background-color: #050505;
+  color: #d4d4d4;
+  transition: background-color 0.5s, color 0.5s;
 }
 
 header {
-  background: #0d1b2a;
-  color: white;
+  background: #000;
+  color: #8b0000; /* 血液暗红 */
   padding: 20px;
   text-align: center;
+  border-bottom: 2px solid #333;
+  box-shadow: 0 0 15px rgba(139, 0, 0, 0.3);
 }
 
 .container {
   padding: 40px;
-  max-width: 800px;
-  margin: auto;
+  max-width: 600px;
+  margin: 40px auto;
+  background: #111;
+  border: 1px solid #333;
+  box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
 }
 
 .job-card {
-  border: 1px solid #ddd;
+  border: 1px dashed #555;
   padding: 20px;
   margin-top: 20px;
-  background: white;
+  background: #0a0a0a;
 }
+
+.warning-text { color: #ff4500; font-weight: bold; }
+.glitch-text { color: #ff9800; text-shadow: 2px 0 red, -2px 0 blue; }
 
 button {
   padding: 10px 20px;
-  background: #1b263b;
-  color: white;
-  border: none;
+  background: #1a1a1a;
+  color: #e0e0e0;
+  border: 1px solid #444;
   cursor: pointer;
-  margin-top: 10px;
+  margin-top: 15px;
+  font-family: inherit;
+  transition: 0.3s;
+  width: 100%;
 }
 
 button:hover {
-  background: #415a77;
+  background: #8b0000;
+  color: #fff;
+  border-color: #ff4c4c;
 }
 
 input {
-  padding: 8px;
+  padding: 10px;
   margin-top: 10px;
-  width: 220px;
+  width: calc(100% - 24px);
+  background: #222;
+  color: #0f0; /* 终端绿 */
+  border: 1px solid #444;
+  font-family: inherit;
 }
 
 .footer {
-  margin-top: 80px;
+  margin-top: 60px;
   text-align: center;
   font-size: 12px;
-  color: #666;
+  color: #444;
 }
 
-.hidden {
-  display: none;
+.hidden { display: none; }
+
+/* 结局满屏效果 */
+.ending-screen {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  display: flex; flex-direction: column; justify-content: center; align-items: center;
+  text-align: center; z-index: 999; padding: 20px; box-sizing: border-box;
 }
 </style>
 </head>
@@ -68,52 +92,45 @@ input {
 <body>
 
 <header>
-  <h1>公寓异常管理集团</h1>
-  <p>致力于维护高质量居住秩序</p>
+  <h1 id="mainTitle">公寓异常管理集团</h1>
+  <p>System.out.println("秩序即生命");</p>
 </header>
 
 <div class="container" id="mainPage">
   <h2>招聘岗位：夜间管理员</h2>
   <div class="job-card">
     <p><strong>工作时间：</strong>21:00 - 06:00</p>
-    <p><strong>岗位职责：</strong>遵守并执行夜间管理规则</p>
-    <p><strong>要求：</strong>逻辑清晰，服从安排</p>
-    <button onclick="showLogin()">员工登录</button>
+    <p><strong>岗位职责：</strong>绝对服从，不要回头</p>
+    <p><strong>警告：</strong>请勿在系统内提及“那个名字”。</p>
+    <button onclick="showLogin()">初始化员工终端</button>
   </div>
 </div>
 
 <div class="container hidden" id="loginPage">
-  <h2>内部员工系统</h2>
-
-  <input type="text" id="playerName" placeholder="员工姓名">
-  <br>
-
-  <input type="text" id="playerCode" placeholder="员工编码（注册后获得）">
-  <br>
-
-  <button onclick="register()">注册新员工</button>
-  <button onclick="login()">登录已有账号</button>
-
-  <br><br>
-  <button onclick="goHome()">返回首页</button>
+  <h2>>_ 内部员工鉴权系统</h2>
+  <input type="text" id="playerName" autocomplete="off" placeholder="输入真实姓名 (切勿使用代号)">
+  <input type="text" id="playerCode" autocomplete="off" placeholder="输入员工编码 (仅登录需要)">
+  
+  <button onclick="register()">[ 登记灵魂 ]</button>
+  <button onclick="login()">[ 唤醒档案 ]</button>
+  <button onclick="goHome()" style="background:#000; border:none; text-decoration:underline;">放弃入职</button>
 </div>
+
+<div id="gameUI"></div>
 
 <div class="footer">
-  © 2026 公寓异常管理集团 | Internal Recruitment Portal
+  © 2026 公寓异常管理集团 | RLS Policy: STRICT
 </div>
 
-<!-- Supabase CDN -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
-
-// ===== 在这里填入你的 Supabase 信息 =====
+// ===== 死里逃生Supabase  =====
 const supabaseUrl = "https://jfqgdcwwjjcopckvopug.supabase.co";
 const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpmcWdkY3d3ampjb3Bja3ZvcHVnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzNTQzMDIsImV4cCI6MjA4NzkzMDMwMn0.95VTLUlRl_cPFWr6L6k8Gg3Qi4ZJhpHLXk0KqwUaelk";
-
 const client = supabase.createClient(supabaseUrl, supabaseKey);
 
-// ===== 页面切换 =====
+// ===== UI 切换 =====
 function showLogin() {
   document.getElementById("mainPage").classList.add("hidden");
   document.getElementById("loginPage").classList.remove("hidden");
@@ -124,117 +141,170 @@ function goHome() {
   document.getElementById("mainPage").classList.remove("hidden");
 }
 
-// ===== 工具函数 =====
-function generateCode() {
-  return Math.floor(1000 + Math.random() * 9000).toString();
+function generateCode() { return Math.floor(1000 + Math.random() * 9000).toString(); }
+
+// ===== 核心拦截器 (彩蛋 1) =====
+function checkDeveloperEasterEgg(name) {
+  const lower = name.toLowerCase();
+  if (lower === "farol" || lower === "farol312110") {
+    alert("【系统拦截】检测到开发者 ID 镜像……\n\n警告：想屁吃呢，滚去干活！");
+    return true;
+  }
+  return false;
 }
 
 // ===== 注册 =====
 async function register() {
-
   const name = document.getElementById("playerName").value.trim();
-
-  if (!name) {
-    alert("请输入姓名");
-    return;
-  }
+  if (!name) return alert("姓名不可为空。");
+  if (checkDeveloperEasterEgg(name)) return;
 
   const code = generateCode();
   const id = name + "_" + code;
 
-  const { error } = await client
-    .from("players")
-    .insert([{
-      id: id,
-      name: name,
-      code: code,
-      pollution: 0,
-      trust: 0,
-      night: 1,
-      loop: 1,
-      last_login: Date.now()
-    }]);
+  const { error } = await client.from("players").insert([{
+    id: id, name: name, code: code, pollution: 0, loop: 1, last_login: Date.now()
+  }]);
 
   if (error) {
-    alert("注册失败：" + error.message);
+    alert("档案录入失败，实体被拒绝：" + error.message);
   } else {
-    alert("注册成功！\n员工编码：" + code + "\n请务必记住。");
+    alert("录入成功。您的唯一编码是：[" + code + "]\n请将其刻在脑子里。");
+    document.getElementById("playerCode").value = code; // 自动填入方便登录
   }
 }
 
 // ===== 登录 =====
 async function login() {
-
   const name = document.getElementById("playerName").value.trim();
   const code = document.getElementById("playerCode").value.trim();
-
-  if (!name || !code) {
-    alert("请输入姓名和员工编码");
-    return;
-  }
+  if (!name || !code) return alert("鉴权信息缺失。");
+  if (checkDeveloperEasterEgg(name)) return;
 
   const id = name + "_" + code;
+  const { data, error } = await client.from("players").select("*").eq("id", id).single();
 
-  const { data, error } = await client
-    .from("players")
-    .select("*")
-    .eq("id", id)
-    .single();
+  if (error || !data) return alert("查无此人。你真的存在过吗？");
 
-  if (error || !data) {
-    alert("员工不存在");
-    return;
-  }
-
-  // 更新登录信息
-  await client
-    .from("players")
-    .update({
-      loop: data.loop + 1,
-      last_login: Date.now()
-    })
-    .eq("id", id);
-
+  await client.from("players").update({ loop: data.loop + 1, last_login: Date.now() }).eq("id", id);
+  
+  // 隐藏登录页，进入游戏
+  document.getElementById("loginPage").classList.add("hidden");
+  document.querySelector("header").classList.add("hidden");
+  document.querySelector(".footer").classList.add("hidden");
+  
   startSystem(data, id);
 }
 
-// ===== 游戏入口 =====
+// ===== 游戏主系统 =====
 function startSystem(data, id) {
+  const nameLower = data.name.toLowerCase();
+  let content = `<div class="container">
+    <h2>监控室 - 档案柜 #${data.loop}</h2>
+    <p>管理员：<span style="color:#0f0">${data.name}</span></p>
+    <p>当前污染值：${data.pollution}</p><hr>`;
 
-  document.body.innerHTML = `
-    <div style="padding:40px;">
-      <h2>欢迎回来，${data.name}</h2>
-      <p>当前污染值：${data.pollution}</p>
-      <p>当前周目：${data.loop}</p>
-      <br>
-      <button onclick="enterHallway('${id}', ${data.pollution})">进入走廊</button>
+  // 彩蛋 2：Firebase 的诅咒
+  if (nameLower === "firebase") {
+    content += `
+      <p class="warning-text">检测到底层架构残留响应...</p>
+      <p>监控室的角落出现了一部不属于这里的电梯。面板上用胶带贴着歪歪扭扭的字迹：“Supabase (故障中)”。</p>
+      <button onclick="fixElevator('${id}')">尝试重置电梯逻辑</button>
+    `;
+  } 
+  // 彩蛋 3：Supabase 的凝视
+  else if (nameLower === "supabase") {
+    content += `
+      <p class="glitch-text">【警告】你感觉背后有一双橙色的眼睛正在注视你的数据库。</p>
+      <button onclick="enterHallway('${id}', ${data.pollution}, true)">去走廊巡视</button>
+    `;
+  } 
+  // 正常流程
+  else {
+    content += `<button onclick="enterHallway('${id}', ${data.pollution}, false)">去走廊巡视</button>`;
+  }
+
+  content += `</div>`;
+  document.getElementById("gameUI").innerHTML = content;
+}
+
+// ===== 剧情分支：修电梯 (Firebase 路线) =====
+function fixElevator(id) {
+  document.getElementById("gameUI").innerHTML = `
+    <div class="ending-screen" style="background-color: #ff9800; color: #fff;">
+      <h1 style="color: #fff; text-shadow: 2px 2px 4px #000;">【BAD ENDING: 永恒的托管】</h1>
+      <p style="max-width: 600px; font-size: 18px; line-height: 1.6;">
+        你接通了最后的电线，电梯发出悦耳的蜂鸣声。门缓缓打开。<br><br>
+        但在你踏入的瞬间，面板上的 'Supabase' 胶带脱落了，露出了底部散发着橙色幽光的 <strong>Firebase</strong> 标志。<br><br>
+        “系统已强行接管。正在同步您的意识至 us-central1 节点... 同步完成。”<br>
+        你再也无法返回首页，因为你已成为缓存的一部分。
+      </p>
+    </div>
+  `;
+  // 物理锁死页面
+  document.body.style.overflow = 'hidden'; 
+}
+
+// ===== 剧情分支：走廊巡视 (Supabase 路线 & 正常路线) =====
+async function enterHallway(id, pollution, isHaunted) {
+  let jumpValue = isHaunted ? 20 : 1; // 被凝视时污染值暴增
+  let newPollution = pollution + jumpValue;
+
+  await client.from("players").update({ pollution: newPollution }).eq("id", id);
+
+  if (isHaunted && newPollution >= 50) {
+    // 触发追逐战
+    document.getElementById("gameUI").innerHTML = `
+      <div class="container" style="border-color: red; animation: shake 0.5s infinite;">
+        <h2 style="color: red;">⚠️ 紧急脱离协议 ⚠️</h2>
+        <p>那个名为 Firebase 的影子从服务器机柜后扑向了你！它的控制欲让你的 RLS 策略全线崩溃！</p>
+        <p>污染值已达 ${newPollution}！</p>
+        <button onclick="chaseResult('die')" style="background: red;">闭上眼睛接受同化</button>
+        <button onclick="chaseResult('survive')" style="background: #0f0; color: #000;">注入强制 DELETE 语句反抗！</button>
+      </div>
+      <style>@keyframes shake { 0% { transform: translate(1px, 1px) rotate(0deg); } 100% { transform: translate(-1px, -2px) rotate(-1deg); } }</style>
+    `;
+    return;
+  }
+
+  // 正常巡视反馈
+  document.getElementById("gameUI").innerHTML = `
+    <div class="container">
+      <h2>幽暗的走廊</h2>
+      <p>头顶的灯管发出滋滋的声音。</p>
+      ${isHaunted ? '<p class="warning-text">身后的脚步声越来越近了……它的同步延迟极低。</p>' : '<p>一切似乎符合规则。</p>'}
+      <p>当前污染值：${newPollution}</p>
+      <button onclick="location.reload()">退回监控室 (刷新页面)</button>
     </div>
   `;
 }
 
-// ===== 简易事件 =====
-async function enterHallway(id, pollution) {
-
-  pollution += 1;
-
-  await client
-    .from("players")
-    .update({ pollution: pollution })
-    .eq("id", id);
-
-  document.body.innerHTML = `
-    <div style="padding:40px;">
-      <h2>走廊</h2>
-      <p>灯全部亮起。</p>
-      <p>远处传来奔跑声。</p>
-      <p>当前污染值：${pollution}</p>
-      <br>
-      <button onclick="location.reload()">返回首页</button>
-    </div>
-  `;
+// ===== 追逐战结算 =====
+function chaseResult(result) {
+  if (result === 'die') {
+    document.getElementById("gameUI").innerHTML = `
+      <div class="ending-screen" style="background-color: #8b0000; color: #fff;">
+        <h1>【BAD ENDING: 冒名顶替】</h1>
+        <p style="max-width: 600px;">
+          影子抓住了你。它夺走了你的 JWT 令牌，并锁死了你的管理员账号。<br><br>
+          它戴上了你的工牌，现在，它才是合法的 Supabase 进程。而你，成了一个被彻底遗忘的 404 错误。
+        </p>
+      </div>
+    `;
+  } else {
+    document.getElementById("gameUI").innerHTML = `
+      <div class="ending-screen" style="background-color: #e0f7fa; color: #006064; font-family: monospace;">
+        <h1>【TRUE ENDING: 架构主宰】</h1>
+        <p style="max-width: 600px;">
+          你咬破指尖，在控制台上敲下了一记完美的 <code>DROP TABLE firebase_ghosts;</code><br><br>
+          影子在一阵红色的报错代码中灰飞烟灭。服务器恢复了宁静的蓝色指示灯。<br><br>
+          系统提示：[ADMIN PRIVILEGES GRANTED]。恭喜你，夜间管理员，你现在是这片数字公寓的造物主。
+        </p>
+      </div>
+    `;
+  }
 }
 
 </script>
-
 </body>
 </html>
