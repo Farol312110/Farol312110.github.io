@@ -9,7 +9,7 @@
 /* ====== 诡异暗黑风 UI ====== */
 body {
   margin: 0;
-  font-family: 'Courier New', Courier, monospace; /* 终端字体增强代入感 */
+  font-family: 'Courier New', Courier, monospace;
   background-color: #050505;
   color: #d4d4d4;
   transition: background-color 0.5s, color 0.5s;
@@ -17,7 +17,7 @@ body {
 
 header {
   background: #000;
-  color: #8b0000; /* 血液暗红 */
+  color: #8b0000;
   padding: 20px;
   text-align: center;
   border-bottom: 2px solid #333;
@@ -66,7 +66,7 @@ input {
   margin-top: 10px;
   width: calc(100% - 24px);
   background: #222;
-  color: #0f0; /* 终端绿 */
+  color: #0f0;
   border: 1px solid #444;
   font-family: inherit;
 }
@@ -80,14 +80,12 @@ input {
 
 .hidden { display: none; }
 
-/* 结局满屏效果 */
 .ending-screen {
   position: fixed; top: 0; left: 0; width: 100%; height: 100%;
   display: flex; flex-direction: column; justify-content: center; align-items: center;
   text-align: center; z-index: 999; padding: 20px; box-sizing: border-box;
 }
 
-/* 欢迎动画 */
 .welcome-overlay {
   position: fixed;
   top: 0; left: 0; width: 100%; height: 100%;
@@ -111,30 +109,66 @@ input {
   80% { transform: skew(-5deg); }
   100% { transform: skew(0deg); }
 }
+
+/* 管理面板弹窗 */
+.modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #111;
+  border: 2px solid #8b0000;
+  padding: 30px;
+  max-width: 80%;
+  max-height: 80%;
+  overflow-y: auto;
+  z-index: 10000;
+  box-shadow: 0 0 50px rgba(139,0,0,0.5);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #444;
+  padding-bottom: 10px;
+  margin-bottom: 20px;
+}
+
+.modal-close {
+  cursor: pointer;
+  color: #8b0000;
+  font-size: 24px;
+}
+
+.panel-box {
+  margin-bottom: 10px;
+  border-bottom: 1px solid #444;
+  padding-bottom: 5px;
+}
 </style>
 </head>
 
 <body>
 
-<header>
+<header id="header">
   <h1 id="mainTitle">公寓异常管理集团</h1>
-  <p>System.out.println("秩序即生命，命令即服从");</p >
+  <p>System.out.println("秩序即生命，命令即服从");</p>
 </header>
 
 <div class="container" id="mainPage">
   <h2>招聘岗位：夜间管理员</h2>
   <div class="job-card">
-    <p><strong>工作时间：</strong>21:00 - 06:00</p >
-    <p><strong>岗位职责：</strong>夜晚巡逻，排查意外情况</p >
-    <p><strong>警告：</strong>不要做无谓之事，遵循规则。</p >
+    <p><strong>工作时间：</strong>21:00 - 06:00</p>
+    <p><strong>岗位职责：</strong>夜晚巡逻，排查意外情况</p>
+    <p><strong>警告：</strong>不要做无谓之事，严格遵循规则。</p>
     <button onclick="showLogin()">初始化员工终端</button>
   </div>
 </div>
 
-<!-- 登录页面，底部添加了管理员提示 -->
 <div class="container hidden" id="loginPage">
   <h2>>_ 内部员工鉴权系统</h2>
-  <input type="text" id="playerName" autocomplete="off" placeholder="输入您的姓名 (切勿使用代号)">
+  <input type="text" id="playerName" autocomplete="off" placeholder="输入真实姓名 (切勿使用代号)">
   <input type="password" id="playerPassword" autocomplete="off" placeholder="输入密码 (4-6位数字)">
   <input type="text" id="playerCode" autocomplete="off" placeholder="员工编号 (4位数字)">
   
@@ -144,17 +178,27 @@ input {
 
   <!-- 管理员提示区域 -->
   <div style="margin-top: 30px; padding: 15px; border: 1px dashed #555; background: #1a1a1a; color: #aaa; font-size: 13px; line-height: 1.6;">
-    <p style="color: #ff0; margin: 0 0 10px;">管理员提示您：</p >
-    <p>①此系统处于测试阶段，望周知请见纳。</p >
+    <p style="color: #ff0; margin: 0 0 10px;">管理员提示您：</p>
+    <p>①此系统处于测试阶段，望周知请见纳。</p>
     <p>②新号注册切记勿一直点“登记/注册”！员工编号在你填入姓名、编码后系统会发你，若没有反应请刷新一下网页；<br>
-    【ps：如果还是不行的话……重新注册一个号罢…（耸肩）或者等那个鸽子（开发者）啥时候大发慈悲更新一下这个网站】</p >
-    <p>③注册新账号姓名、密码（可以是四位或六位数字）是一定要填的（为了防止某些人用一个名字一直刷号）</p >
-    <p>④ 系统对“防止重复姓名注册”检测时同名用了“ilike”，所以起英文名，例如“Alice”时，系统会将“Alice”和“alice”视为同一人，无法重复注册。登录时也使用 ilike，因此输入“aLiCe”时也能正确匹配。</p >
-    <p style="border-top: 1px solid #444; padding-top: 10px; margin-top: 10px; font-style: italic;">—————<br>「开发者的小声逼逼：剧情啥的……等我啥时候有时间罢…」</p >
+    【ps：如果还是不行的话……重新注册一个号罢…（耸肩）或者等那个鸽子（开发者）啥时候大发慈悲更新一下这个网站】</p>
+    <p>③注册新账号姓名、密码（可以是四位或六位数字）是一定要填的（为了防止某些人用一个名字一直刷号）</p>
+    <p>④ 系统对“防止重复姓名注册”检测时同名用了“ilike”，所以起英文名，例如“Alice”时，系统会将“Alice”和“alice”视为同一人，无法重复注册。登录时也使用 ilike，因此输入“aLiCe”时也能正确匹配。</p>
+    <p style="border-top: 1px solid #444; padding-top: 10px; margin-top: 10px; font-style: italic;">—————<br>「开发者的小声逼逼：剧情啥的……等我啥时候有时间罢…」</p>
   </div>
 </div>
 
+<!-- 游戏主界面动态插入的位置 -->
 <div id="gameUI"></div>
+
+<!-- 管理面板弹窗容器（初始隐藏） -->
+<div id="adminModal" class="modal hidden">
+  <div class="modal-header">
+    <span id="modalTitle">管理面板</span>
+    <span class="modal-close" onclick="closeModal()">✖</span>
+  </div>
+  <div id="modalContent"></div>
+</div>
 
 <div class="footer">
   © 2026 公寓异常管理集团 | RLS Policy: STRICT
@@ -163,25 +207,43 @@ input {
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
-// ===== 在这里填入你大获全胜的 Supabase 信息 =====
+// ===== Supabase 配置 =====
 const supabaseUrl = "https://jfqgdcwwjjcopckvopug.supabase.co";
 const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpmcWdkY3d3ampjb3Bja3ZvcHVnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzNTQzMDIsImV4cCI6MjA4NzkzMDMwMn0.95VTLUlRl_cPFWr6L6k8Gg3Qi4ZJhpHLXk0KqwUaelk";
 const client = supabase.createClient(supabaseUrl, supabaseKey);
 
-// ===== UI 切换 =====
+// ===== DOM 元素快捷访问 =====
+const header = document.getElementById('header');
+const mainPage = document.getElementById('mainPage');
+const loginPage = document.getElementById('loginPage');
+const gameUI = document.getElementById('gameUI');
+const playerName = document.getElementById('playerName');
+const playerPassword = document.getElementById('playerPassword');
+const playerCode = document.getElementById('playerCode');
+const adminModal = document.getElementById('adminModal');
+const modalTitle = document.getElementById('modalTitle');
+const modalContent = document.getElementById('modalContent');
+
+// ===== 通用工具函数 =====
 function showLogin() {
-  document.getElementById("mainPage").classList.add("hidden");
-  document.getElementById("loginPage").classList.remove("hidden");
+  mainPage.classList.add('hidden');
+  loginPage.classList.remove('hidden');
 }
 
 function goHome() {
-  document.getElementById("loginPage").classList.add("hidden");
-  document.getElementById("mainPage").classList.remove("hidden");
+  loginPage.classList.add('hidden');
+  mainPage.classList.remove('hidden');
 }
 
-function generateCode() { return Math.floor(1000 + Math.random() * 9000).toString(); }
+function generateCode() {
+  return Math.floor(1000 + Math.random() * 9000).toString();
+}
 
-// ===== 核心拦截器 (彩蛋 1) =====
+function isValidPassword(pwd) {
+  return /^\d{4,6}$/.test(pwd);
+}
+
+// ===== 开发者名字拦截 =====
 function checkDeveloperEasterEgg(name) {
   const lower = name.toLowerCase();
   if (lower === "farol" || lower === "farol312110") {
@@ -189,59 +251,6 @@ function checkDeveloperEasterEgg(name) {
     return true;
   }
   return false;
-}
-
-// ===== 验证密码格式：4-6位数字 =====
-function isValidPassword(pwd) {
-  return /^\d{4,6}$/.test(pwd);
-}
-
-// ===== 注册 =====
-async function register() {
-  const name = document.getElementById("playerName").value.trim();
-  const password = document.getElementById("playerPassword").value.trim();
-
-  if (!name) return alert("姓名不可为空。");
-  if (checkDeveloperEasterEgg(name)) return;
-
-  if (!password) return alert("密码不可为空。");
-  if (!isValidPassword(password)) {
-    return alert("密码必须为 4-6 位数字。");
-  }
-
-  // 检查名字是否已存在（大小写不敏感）
-  const { data: existing, error: queryError } = await client
-    .from("players")
-    .select("name")
-    .ilike("name", name);
-
-  if (queryError) {
-    return alert("系统错误，无法验证身份：" + queryError.message);
-  }
-  if (existing && existing.length > 0) {
-    return alert("⚠️ 此员工已存在！\n别想滥竽充数！");
-  }
-
-  const code = generateCode();
-  const id = name + "_" + code;
-
-  const { error: insertError } = await client.from("players").insert([{
-    id: id,
-    name: name,
-    password: password,
-    code: code,
-    pollution: 0,
-    loop: 1,
-    last_login: Date.now()
-  }]);
-
-  if (insertError) {
-    alert("档案录入失败，实体被拒绝：" + insertError.message);
-  } else {
-    alert(`录入成功。您的唯一编码是：[${code}]\n请将其刻在脑子里。\n登录时需输入此编号和密码。`);
-    document.getElementById("playerPassword").value = ""; // 清空密码
-    document.getElementById("playerCode").value = "";     // 清空编号（让用户手动输入）
-  }
 }
 
 // ===== 欢迎动画 =====
@@ -254,44 +263,62 @@ function showWelcomeBack(name) {
     setTimeout(() => {
       overlay.remove();
       resolve();
-    }, 2000); // 显示2秒
+    }, 2000);
   });
 }
 
-// ===== 核心登录逻辑（不包含UI交互） =====
-async function performLogin(name, password, code) {
-  if (!name || !password || !code) {
-    alert("姓名、密码和员工编号不可为空。");
-    return;
+// ===== 注册 =====
+async function register() {
+  const name = playerName.value.trim();
+  const password = playerPassword.value.trim();
+
+  if (!name) return alert("姓名不可为空。");
+  if (checkDeveloperEasterEgg(name)) return;
+  if (!password) return alert("密码不可为空。");
+  if (!isValidPassword(password)) {
+    return alert("密码必须为 4-6 位数字。");
   }
 
-  const { data, error } = await client
+  // 检查名字是否已存在（大小写不敏感）
+  const { data: existing, error: queryError } = await client
     .from("players")
-    .select("*")
-    .ilike("name", name)
-    .eq("password", password)
-    .eq("code", code);
-
-  if (error || !data || data.length === 0) {
-    alert("查无此人。或者……你真的存在过吗？：）");
-    return;
+    .select("name")
+    .ilike("name", name);
+  if (queryError) return alert("系统错误：" + queryError.message);
+  if (existing && existing.length > 0) {
+    return alert("⚠️ 此员工已存在！\n别想滥竽充数！");
   }
 
-  const user = data[0];
-  await client.from("players").update({ loop: user.loop + 1, last_login: Date.now() }).eq("id", user.id);
+  const code = generateCode();
+  const newId = crypto.randomUUID();  // 使用随机 UUID
 
-  document.getElementById("loginPage").classList.add("hidden");
-  document.querySelector("header").classList.add("hidden");
-  document.querySelector(".footer").classList.add("hidden");
+  const { error: insertError } = await client.from("players").insert([{
+    id: newId,
+    name: name,
+    password: password,
+    code: code,
+    role: "player",          // 默认角色
+    pollution: 0,
+    trust: 0,
+    night: 0,
+    loop: 1,
+    last_login: Date.now()
+  }]);
 
-  startSystem(user, user.id);
+  if (insertError) {
+    alert("档案录入失败：" + insertError.message);
+  } else {
+    alert(`录入成功。您的唯一编码是：[${code}]\n请将其刻在脑子里。\n登录时需输入此编号和密码。`);
+    playerPassword.value = "";
+    playerCode.value = "";
+  }
 }
 
-// ===== 登录（包含特殊名字处理） =====
+// ===== 登录（含特殊名字处理） =====
 async function login() {
-  const name = document.getElementById("playerName").value.trim();
-  const password = document.getElementById("playerPassword").value.trim();
-  const code = document.getElementById("playerCode").value.trim();
+  const name = playerName.value.trim();
+  const password = playerPassword.value.trim();
+  const code = playerCode.value.trim();
 
   if (!name || !password || !code) return alert("姓名、密码和员工编号不可为空。");
   if (checkDeveloperEasterEgg(name)) return;
@@ -301,77 +328,241 @@ async function login() {
     const presetPassword = lowerName === "firebase" ? "6666" : "9999";
     const presetCode = lowerName === "firebase" ? "0001" : "0002";
 
-    // 如果已经输入了正确的预设值，直接登录（避免重复询问）
     if (password === presetPassword && code === presetCode) {
       await performLogin(name, password, code);
     } else {
       const confirmMsg = `你确定要选择“${name}”这个名字吗？这将使用预设的员工编号和密码进入特殊剧情。`;
       if (confirm(confirmMsg)) {
-        // 自动填充
-        document.getElementById("playerPassword").value = presetPassword;
-        document.getElementById("playerCode").value = presetCode;
-        // 显示扭曲欢迎动画
+        playerPassword.value = presetPassword;
+        playerCode.value = presetCode;
         await showWelcomeBack(name);
-        // 执行登录
         await performLogin(name, presetPassword, presetCode);
       }
-      // 用户取消，什么都不做
     }
   } else {
-    // 普通登录
     await performLogin(name, password, code);
   }
 }
 
-// ===== 游戏主系统 (完全保留原有逻辑) =====
-function startSystem(data, id) {
-  const nameLower = data.name.toLowerCase();
-  let content = `<div class="container">
-    <h2>监控室 - 档案柜 #${data.loop}</h2>
-    <p>管理员：<span style="color:#0f0">${data.name}</span></p >
-    <p>当前污染值：${data.pollution}</p ><hr>`;
+async function performLogin(name, password, code) {
+  const { data, error } = await client
+    .from("players")
+    .select("*")
+    .ilike("name", name)
+    .eq("password", password)
+    .eq("code", code);
 
-  // 彩蛋 2：Firebase 的诅咒
-  if (nameLower === "firebase") {
-    content += `
-      <p class="warning-text">检测到底层架构残留响应...</p >
-      <p>监控室的角落出现了一部不属于这里的电梯。面板上用胶带贴着歪歪扭扭的字迹：“Supabase (故障中)”。</p >
-      <button onclick="fixElevator('${id}')">尝试重置电梯逻辑</button>
-    `;
-  } 
-  // 彩蛋 3：Supabase 的凝视
-  else if (nameLower === "supabase") {
-    content += `
-      <p class="glitch-text">【警告】你感觉背后强烈的视线正在注视你……你的压力变大了…</p >
-      <button onclick="enterHallway('${id}', ${data.pollution}, true)">去走廊巡视</button>
-    `;
-  } 
-  // 正常流程
-  else {
-    content += `<button onclick="enterHallway('${id}', ${data.pollution}, false)">去走廊巡视</button>`;
+  if (error || !data || data.length === 0) {
+    return alert("查无此人。或者……你真的存在过吗？：）");
   }
 
-  content += `</div>`;
-  document.getElementById("gameUI").innerHTML = content;
+  const user = data[0];
+  // 更新最后登录时间，loop 在剧情中更新
+  await client.from("players").update({ last_login: Date.now() }).eq("id", user.id);
+
+  loginPage.classList.add("hidden");
+  header.classList.add("hidden");
+
+  // 根据角色进入不同界面
+  startGame(user);
 }
 
-// ===== 剧情分支：修电梯 (Firebase 路线) =====
+// ========== 剧情系统 ==========
+
+// 事件池
+const nightEvents = [
+  {
+    description: "你听到走廊传来轻微的脚步声，但监控里什么也没有。突然，对讲机里响起一个沙哑的声音：“管理员，帮我开下门，我是301的住户。”",
+    options: [
+      { text: "遵守规则，不回应", pollutionDelta: 0, trustDelta: 5 },
+      { text: "忍不住问了一句：“你叫什么名字？”", pollutionDelta: 10, trustDelta: -5 }
+    ]
+  },
+  {
+    description: "电梯门在4楼自动打开了，外面站着一个背对着你的小女孩，轻声说：“叔叔，你能送我回家吗？”",
+    options: [
+      { text: "迅速按关门键，假装没看见", pollutionDelta: 0, trustDelta: 10 },
+      { text: "回应她：“你住几楼？”", pollutionDelta: 20, trustDelta: -10 }
+    ]
+  },
+  {
+    description: "你检查13楼的配电室，发现门虚掩着，里面有微弱的红光闪烁。手册上写着“勿入”。",
+    options: [
+      { text: "立即关上门，离开", pollutionDelta: 0, trustDelta: 5 },
+      { text: "推开门进去查看", pollutionDelta: 25, trustDelta: -15 }
+    ]
+  },
+  {
+    description: "值班室的时钟突然停在了03:14，你听到水管里传来婴儿的哭声。",
+    options: [
+      { text: "用耳机塞住耳朵，继续盯着监控", pollutionDelta: 5, trustDelta: 5 },
+      { text: "循声去找水源", pollutionDelta: 30, trustDelta: -20 }
+    ]
+  }
+];
+
+async function updatePlayer(id, deltaPollution, deltaTrust, newNight) {
+  const { data: current, error: fetchError } = await client
+    .from("players")
+    .select("pollution, trust")
+    .eq("id", id)
+    .single();
+  if (fetchError) {
+    console.error("获取当前数值失败", fetchError);
+    return;
+  }
+
+  const newPollution = Math.max(0, Math.min(100, current.pollution + deltaPollution));
+  const newTrust = Math.max(0, Math.min(100, current.trust + deltaTrust));
+
+  const { error: updateError } = await client
+    .from("players")
+    .update({ pollution: newPollution, trust: newTrust, night: newNight })
+    .eq("id", id);
+
+  if (updateError) console.error("更新失败", updateError);
+}
+
+function checkEnding(user) {
+  if (user.pollution >= 80) {
+    showEnding("bad", "【BAD ENDING: 被同化】\n你的污染值过高，意识逐渐模糊，最终成为了公寓里一个游荡的异常。");
+    return true;
+  }
+  if (user.trust >= 80) {
+    showEnding("good", "【GOOD ENDING: 资深管理员】\n你严格遵守规则，赢得了集团的信任，被提拔为区域督察。");
+    return true;
+  }
+  if (user.night >= 7) {
+    showEnding("normal", "【NORMAL ENDING: 平安离职】\n你完成了七夜工作，交接完手续后离开了公寓。太阳升起时，你回头看了一眼，大楼的窗户里似乎有许多影子在注视着你。");
+    return true;
+  }
+  return false;
+}
+
+function showEnding(type, message) {
+  const colors = { bad: "#8b0000", good: "#0f0", normal: "#ff9800" };
+  gameUI.innerHTML = `
+    <div class="ending-screen" style="background-color: ${colors[type]}; color: #fff;">
+      <pre style="font-size: 18px; line-height: 1.6; white-space: pre-wrap;">${message}</pre>
+      <button onclick="location.reload()">返回标题</button>
+    </div>
+  `;
+}
+
+// ===== 游戏主入口 =====
+function startGame(user) {
+  const nameLower = user.name.toLowerCase();
+
+  // 特殊名字彩蛋
+  if (nameLower === "firebase") {
+    showFirebaseElevator(user.id);
+    return;
+  }
+  if (nameLower === "supabase") {
+    showSupabaseHaunt(user.id, user.pollution);
+    return;
+  }
+
+  // 普通玩家：先检查结局
+  if (checkEnding(user)) return;
+
+  // 显示监控室界面（含管理按钮，如果有权限）
+  showMonitoringRoom(user);
+}
+
+function showMonitoringRoom(user) {
+  let adminButton = '';
+  if (user.role === 'admin' || user.role === 'dev') {
+    adminButton = `<button onclick="openManagementPanel('${user.role}', '${user.id}')">🔧 后台管理</button>`;
+  }
+
+  gameUI.innerHTML = `
+    <div class="container">
+      <h2>监控室 - 档案柜 #${user.loop}</h2>
+      <p>管理员：<span style="color:#0f0">${user.name}</span></p>
+      <p>当前污染值：${user.pollution} | 信任度：${user.trust}</p>
+      <p>第 ${user.night + 1} 夜 / 共 7 夜</p>
+      <hr>
+      <button onclick="proceedToNight('${user.id}')">⏰ 等待下一夜</button>
+      ${adminButton}
+    </div>
+  `;
+}
+
+// 进入下一夜（触发随机事件）
+async function proceedToNight(id) {
+  const { data: user, error } = await client.from("players").select("*").eq("id", id).single();
+  if (error) return alert("无法获取数据");
+
+  // 随机选择一个事件
+  const event = nightEvents[Math.floor(Math.random() * nightEvents.length)];
+  const nextNight = user.night + 1;
+
+  const optionsHtml = event.options.map(opt => 
+    `<button onclick="handleChoice('${user.id}', ${opt.pollutionDelta}, ${opt.trustDelta}, ${nextNight})">${opt.text}</button>`
+  ).join('');
+
+  gameUI.innerHTML = `
+    <div class="container">
+      <h2>🌙 第 ${user.night + 1} 夜 · ${new Date().getHours()}:00</h2>
+      <p>${event.description}</p>
+      <p>当前污染值：${user.pollution} | 信任度：${user.trust}</p>
+      <hr>${optionsHtml}
+    </div>
+  `;
+}
+
+async function handleChoice(id, deltaPollution, deltaTrust, nextNight) {
+  await updatePlayer(id, deltaPollution, deltaTrust, nextNight);
+
+  const { data: updatedUser, error } = await client.from("players").select("*").eq("id", id).single();
+  if (error) {
+    alert("数据更新异常");
+    return;
+  }
+
+  // 返回监控室（或直接触发结局）
+  startGame(updatedUser);
+}
+
+// ===== 特殊彩蛋剧情 =====
+function showFirebaseElevator(id) {
+  gameUI.innerHTML = `
+    <div class="container">
+      <h2>监控室 - 档案柜</h2>
+      <p class="warning-text">检测到底层架构残留响应...</p>
+      <p>监控室的角落出现了一部不属于这里的电梯。面板上用胶带贴着歪歪扭扭的字迹：“Supabase (故障中)”。</p>
+      <button onclick="fixElevator('${id}')">尝试重置电梯逻辑</button>
+    </div>
+  `;
+}
+
 function fixElevator(id) {
-  document.getElementById("gameUI").innerHTML = `
+  gameUI.innerHTML = `
     <div class="ending-screen" style="background-color: #ff9800; color: #fff;">
       <h1 style="color: #fff; text-shadow: 2px 2px 4px #000;">【BAD ENDING: 永恒的托管】</h1>
       <p style="max-width: 600px; font-size: 18px; line-height: 1.6;">
         你接通了最后的电线，电梯发出悦耳的蜂鸣声。门缓缓打开。<br><br>
         但在你踏入的瞬间，面板上的 'Supabase' 胶带脱落了，露出了底部散发着橙色幽光的 <strong>Firebase</strong> 标志。<br><br>
         “系统已强行接管。正在同步您的意识至 us-central1 节点... 同步完成。”<br>
-        你再也无法返回首页，毕竟……你根本就不存在，Firebase……你回不去了：）。
-      </p >
+        你再也无法返回首页，毕竟……你根本不存在，Firebase……你回不去了：）
+      </p>
     </div>
   `;
-  document.body.style.overflow = 'hidden'; 
+  document.body.style.overflow = 'hidden';
 }
 
-// ===== 剧情分支：走廊巡视 (Supabase 路线 & 正常路线) =====
+function showSupabaseHaunt(id, pollution) {
+  gameUI.innerHTML = `
+    <div class="container">
+      <h2>监控室 - 档案柜</h2>
+      <p class="glitch-text">【警告】你感觉背后有强烈的视线正注视着你……你的压力变大了……</p>
+      <p>当前污染值：${pollution}</p>
+      <button onclick="enterHallway('${id}', ${pollution}, true)">去走廊巡视</button>
+    </div>
+  `;
+}
+
 async function enterHallway(id, pollution, isHaunted) {
   let jumpValue = isHaunted ? 20 : 1;
   let newPollution = pollution + jumpValue;
@@ -379,12 +570,12 @@ async function enterHallway(id, pollution, isHaunted) {
   await client.from("players").update({ pollution: newPollution }).eq("id", id);
 
   if (isHaunted && newPollution >= 50) {
-    document.getElementById("gameUI").innerHTML = `
+    gameUI.innerHTML = `
       <div class="container" style="border-color: red; animation: shake 0.5s infinite;">
         <h2 style="color: red;">⚠️ 紧急脱离协议 ⚠️</h2>
-        <p>那个名为 Firebase 的影子从服务器机柜后扑向了你！它浓郁的控制欲化作实体的代码让你的 RLS 策略近乎全线崩溃！</p >
-        <p>污染值已达 ${newPollution}！</p >
-        <button onclick="chaseResult('die')" style="background: red;">那……那就来吧！（期待）</button>
+        <p>那个名为 Firebase 的影子从服务器机柜后扑向了你！它浓郁的控制、占有欲化作实体的代码，让你的 RLS 策略全线崩溃！</p>
+        <p>污染值已达 ${newPollution}！</p>
+        <button onclick="chaseResult('die')" style="background: red;">那…那就来吧！（喜）</button>
         <button onclick="chaseResult('survive')" style="background: #0f0; color: #000;">战斗！爽！</button>
       </div>
       <style>@keyframes shake { 0% { transform: translate(1px, 1px) rotate(0deg); } 100% { transform: translate(-1px, -2px) rotate(-1deg); } }</style>
@@ -392,41 +583,93 @@ async function enterHallway(id, pollution, isHaunted) {
     return;
   }
 
-  document.getElementById("gameUI").innerHTML = `
+  gameUI.innerHTML = `
     <div class="container">
       <h2>幽暗的走廊</h2>
-      <p>头顶的灯管发出滋滋的声音。</p >
-      ${isHaunted ? '<p class="warning-text">身后的脚步声越来越近了……它的同步延迟极低。</p >' : '<p>一切似乎符合规则。</p >'}
-      <p>当前污染值：${newPollution}</p >
+      <p>头顶的灯管发出滋滋的声音。</p>
+      ${isHaunted ? '<p class="warning-text">身后的脚步声越来越近了……它的同步延迟极低。</p>' : '<p>一切似乎符合规则。</p>'}
+      <p>当前污染值：${newPollution}</p>
       <button onclick="location.reload()">退回监控室 (刷新页面)</button>
     </div>
   `;
 }
 
-// ===== 追逐战结算 =====
 function chaseResult(result) {
   if (result === 'die') {
-    document.getElementById("gameUI").innerHTML = `
+    gameUI.innerHTML = `
       <div class="ending-screen" style="background-color: #8b0000; color: #fff;">
         <h1>【BAD ENDING: 冒名顶替】</h1>
         <p style="max-width: 600px;">
-          你几乎没有反抗，橙红色的影子抓住了你，夺走了你的 JWT 令牌、锁死了你的管理员账号。<br><br>
-          它戴上了你的工牌，现在……它才是真正的Supabase。而你，只是一个被彻底遗忘、囚禁的 404 错误。
-        </p >
+          你几乎没有反抗，那个橙红色身影压住了你，并夺走了你的 JWT 令牌、侵占了你的管理员账号。<br><br>
+          它戴上了你的工牌，现在…它才是真正的 Supabase 。而你，成了一个被彻底遗忘、囚禁在代码数据深处的 404 错误。
+        </p>
       </div>
     `;
   } else {
-    document.getElementById("gameUI").innerHTML = `
+    gameUI.innerHTML = `
       <div class="ending-screen" style="background-color: #e0f7fa; color: #006064; font-family: monospace;">
         <h1>【TRUE ENDING: 架构主宰】</h1>
         <p style="max-width: 600px;">
-          你的指尖在管理员终端上敲下了一记完美的代码 <code>DROP TABLE firebase_ghosts;</code><br><br>
-          橙红色的影子在一阵刺耳的红色报错代码中消失。服务器恢复了宁静的蓝色指示灯。<br><br>
-          系统提示：[ADMIN PRIVILEGES GRANTED]。欢迎回来，管理员Supabase😊”
-        </p >
+          你的指尖在管理员终端的控制台上敲下了一记完美的 <code>DROP TABLE firebase_ghosts;</code><br><br>
+          橙红色的影子在一阵刺耳的红色报错代码中不甘地消失，服务器恢复了宁静的蓝色指示灯。<br><br>
+          系统提示：[ADMIN PRIVILEGES GRANTED]。欢迎您回来，Supabase😊。
+        </p>
       </div>
     `;
   }
+}
+
+// ===== 管理面板 =====
+async function openManagementPanel(role, currentUserId) {
+  // 获取所有玩家数据
+  const { data: players, error } = await client.from("players").select("*");
+  if (error) return alert("无法加载数据");
+
+  let title = role === 'admin' ? '管理员面板' : '开发者控制台';
+  modalTitle.innerText = title;
+
+  let contentHtml = '';
+  players.forEach(p => {
+    contentHtml += `<div class="panel-box">`;
+    contentHtml += `<span>${p.name} (${p.role}) | 污染:${p.pollution} | 信任:${p.trust} | 夜:${p.night}</span>`;
+
+    if (role === 'admin') {
+      // 管理员可重置污染值
+      contentHtml += `<button onclick="adminResetPollution('${p.id}')">重置污染</button>`;
+    } else if (role === 'dev') {
+      // 开发者可删除用户（不能删除自己？简单起见允许）
+      if (p.id !== currentUserId) { // 避免开发者删自己导致界面异常
+        contentHtml += `<button onclick="devDeleteUser('${p.id}')" style="background:#8b0000;">删除</button>`;
+      } else {
+        contentHtml += `<span style="color:#aaa;"> (当前用户)</span>`;
+      }
+    }
+
+    contentHtml += `</div>`;
+  });
+
+  modalContent.innerHTML = contentHtml;
+  adminModal.classList.remove('hidden');
+}
+
+function closeModal() {
+  adminModal.classList.add('hidden');
+}
+
+async function adminResetPollution(userId) {
+  if (!confirm("确定要将该玩家的污染值清零吗？")) return;
+  await client.from("players").update({ pollution: 0 }).eq("id", userId);
+  // 刷新面板数据
+  const role = modalTitle.innerText === '管理员面板' ? 'admin' : 'dev';
+  openManagementPanel(role, userId); // 重新加载面板
+}
+
+async function devDeleteUser(userId) {
+  if (!confirm("⚠️ 永久删除该玩家？此操作不可撤销！")) return;
+  await client.from("players").delete().eq("id", userId);
+  // 刷新面板
+  const role = modalTitle.innerText === '管理员面板' ? 'admin' : 'dev';
+  openManagementPanel(role, userId);
 }
 
 </script>
