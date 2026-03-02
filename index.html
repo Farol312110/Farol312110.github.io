@@ -125,8 +125,8 @@ input {
   <h2>招聘岗位：夜间管理员</h2>
   <div class="job-card">
     <p><strong>工作时间：</strong>21:00 - 06:00</p>
-    <p><strong>岗位职责：</strong>绝对服从，不要回头</p>
-    <p><strong>警告：</strong>请勿在系统内提及“那个名字”。</p>
+    <p><strong>岗位职责：</strong>夜间巡逻、排查意外情况</p>
+    <p><strong>警告：</strong>不要做无谓之事，不要违抗命令。</p>
     <button onclick="showLogin()">初始化员工终端</button>
   </div>
 </div>
@@ -137,8 +137,8 @@ input {
   <input type="password" id="playerPassword" autocomplete="off" placeholder="输入密码 (4-6位数字)">
   <input type="text" id="playerCode" autocomplete="off" placeholder="员工编号 (4位数字)">
   
-  <button onclick="register()">[ 登记灵魂 ]</button>
-  <button onclick="login()">[ 唤醒档案 ]</button>
+  <button onclick="register()">[ 登记/注册（新账号） ]</button>
+  <button onclick="login()">[ 登陆（已有账号） ]</button>
   <button onclick="goHome()" style="background:#000; border:none; text-decoration:underline;">放弃入职</button>
 </div>
 
@@ -151,7 +151,7 @@ input {
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
-// ===== 在这里填入你大获全胜的 Supabase 信息 =====
+// =====  Supabase 信息 =====
 const supabaseUrl = "https://jfqgdcwwjjcopckvopug.supabase.co";
 const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpmcWdkY3d3ampjb3Bja3ZvcHVnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzNTQzMDIsImV4cCI6MjA4NzkzMDMwMn0.95VTLUlRl_cPFWr6L6k8Gg3Qi4ZJhpHLXk0KqwUaelk";
 const client = supabase.createClient(supabaseUrl, supabaseKey);
